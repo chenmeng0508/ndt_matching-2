@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<launch>
+  <param name="use_sim_time" value="true" />
+    
+    <!-- play data -->
+    <node pkg="rosbag" type="play" name="player"  output="screen" args="--pause --clock /home/liu/bag/gazebo.bag">
+    </node>
+
+    <!-- transfrom the odom to tf -->
+    <node pkg="robot_simulation" type="tf_from_odom.py" name="tf_from_odom" >
+        <param name="odom_topic"  type="string"  value= "/odom" />
+    </node>
+
+    <node pkg="robot_simulation" type="pc_to_pc2.py" name="pcd_to_pc2" ></node>
+
+
+
+        <!-- load map -->
+    <node name="map3d_server" pkg="map3d_server" type="map3d_server" respawn="false" output="screen" >
+        <param name="binary_filename"    type="string" value= "/home/liu/catkin_ws/src/map3d_server/map/gazebo.pcd" />
+        <param name="map3d_topic_name"   type="string" value= "/points_map" />
+        <param name="map2d_topic_name"   type="string" value= "/map" />
+        <param name="grid_size"          type="double"  value= "0.05" />
+        <param name="min_z"              type="double"  value= "-1" />
+        <param name="max_z"              type="double"  value= "-0.8" />
+        <param name="min_prob"              type="double"  value= "0.55" />
+    </node>
+    <node pkg="ndt_matching" type="ndt_matching" name="ndt_matching" output="screen" ></node>
+    <!-- run rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find ndt_matching)/launch/config.rviz"/>
+
+
+</launch>
